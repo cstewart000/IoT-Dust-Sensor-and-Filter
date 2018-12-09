@@ -19,7 +19,7 @@ const String slack_message = "test_message";
 const String slack_username = "Air quality IoT device - Scrubber";
 
 // :Hardware Settings
-const int buttonPin = D2;    // the number of the pushbutton pin
+const int buttonPin = D3;    // the number of the pushbutton pin
 const int scrubberSSRelay = D1;      // the number of the LED pin
 
 // Variables will change:
