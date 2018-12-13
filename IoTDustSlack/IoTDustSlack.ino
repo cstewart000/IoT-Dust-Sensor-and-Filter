@@ -8,12 +8,16 @@
 #define        NO_DUST_VOLTAGE                 400            //mv
 #define        SYS_VOLTAGE                     5000
 
+
+#define POST_TIME_MS 5000
+
+
 //MQ-2 Sensor threshold
 int sensorThres = 400;
 
 // IoT settings
-const char* ssid = "HUAWEI-2XCNAA";
-const char* password = "95749389";
+const char* ssid = "Hackland";
+const char* password = "hackland1";
 
 const char* host = "api.pushingbox.com";
 
@@ -26,14 +30,14 @@ const String slack_username = "Air quality IoT device";
 
 // I/O define
 //Power pins
-const int dustSensorPowerPin = D1; //drive the led of dust sensor
-const int pirSensorPowerPin = D2; //PIR sensor Power
-const int gasSensorPowerPin = D4; //Gas sensor Power
-const int microphnePowerPin = D4; //Microphone sensor Power
+const int dustSensorPowerPin = D7; //drive the led of dust sensor
+//const int pirSensorPowerPin = D1; //PIR sensor Power
+//const int gasSensorPowerPin = D4; //Gas sensor Power
+//const int microphnePowerPin = D4; //Microphone sensor Power
 
 //read pins
 const int PIRSensorDDataPin = D3; //PIR sensor
-const int tempHumiditySensorDataPin = D5; //temp and humidity
+const int tempHumiditySensorDataPin = D1; //temp and humidity
 
 // Common Analog in NB: 3 of the sensors are analog and need to be read one at a time with diodes to isolate the circuits from each other
 const int commonAnalogInputPin = A0; //analog input
@@ -45,73 +49,82 @@ int adcvalue, noiselevel, gaslevel;
 bool movementPIRSensor = false;
 
 static char outstr[15];
-
-
-String message;
+bool connected;
 
 // DHT object variable
 DHTesp dht;
 
+/*
 int filter(int m);
 void readAnalogSensor(int digitalPinToPower);
 void readMicrophone(int analogValue);
 void readDustSensor(int analogValue);
 void readMQ2GasSensor(int analogValue);
 void readPIRSensor();
-void readTempAndHumidySensor();
+void readTempAndHumiditySensor();
+int readAnalogSensor(int digitalPinToPower);
+*/
 
 //Posting functions
 void printSensorValuesToConsole();
-String compose
+bool postMessageToSlack(String msg);
+void connectToInternet();
 
-void setup(void)
-{
+void setup(void){
+
+  // Initialise Serial
+  Serial.begin(9600);  //send and receive at 9600 baud
+  
+  connectToInternet();
 
   // initialise the DHT
-  dht.setup(tempHumiditySensorDataPin, DHTesp::tempHumiditySensorDataPin);
+  dht.setup(tempHumiditySensorDataPin, DHTesp::DHT11);
 
   // Initialise outputs and modes
   pinMode(dustSensorPowerPin, OUTPUT);
   digitalWrite(dustSensorPowerPin, LOW);
 
-  pinMode(pirSensorPowerPin, OUTPUT);
-  digitalWrite(pirSensorPowerPin, LOW);
+  //pinMode(pirSensorPowerPin, OUTPUT);
+  //digitalWrite(pirSensorPowerPin, LOW);
 
-  pinMode(gasSensorPowerPin, OUTPUT);
-  digitalWrite(gasSensorPowerPin, LOW);
-
-  // Initialise Serial
-  Serial.begin(9600);  //send and receive at 9600 baud
+  //pinMode(gasSensorPowerPin, OUTPUT);
+  //digitalWrite(gasSensorPowerPin, LOW);
 
 }
 
-void loop(void)
-{
+void loop(void){
+  connected = (WiFi.status() == WL_CONNECTED);
+   
   // DHT 
-  delay(dht.getMinimumSamplingPeriod());
+  //delay(dht.getMinimumSamplingPeriod());
   Serial.printf("dht sampling period: %d\n" ,dht.getMinimumSamplingPeriod());
 
-  readTempAndHumidySensor();
+  readTempAndHumiditySensor();
   
   // check movementPIRSensor
   readPIRSensor();
 
-  //Michrophone
-  readMichrophone(readAnalogSensor(microphnePowerPin));
+  //Microphone
+  //readMicrophone(readAnalogSensor(microphnePowerPin));
   
   // read particle sensor
   readDustSensor(readAnalogSensor(dustSensorPowerPin));
 
    // read particle sensor
-  readMQ2GasSensor(readAnalogSensor(gasSensorPowerPin)); 
+  //readMQ2GasSensor(readAnalogSensor(gasSensorPowerPin)); 
 
   // Debug sensor values to console
   printSensorValuesToConsole();
-  String message = composePostMessage();
 
-  postMessageToSlack(message);
+  //Serial.println("broadcast");
+  String message = composePostMessage();
+  //Serial.println("message");
+  if(connected)
+  {
+    postMessageToSlack(message);
+  } 
   
-  delay(60000);
+  delay(POST_TIME_MS);
 }
 
 //filter for dust sensor values.
@@ -149,7 +162,7 @@ int filter(int m) {
 
 void connectToInternet(){
 
-  Serial.print("Dust Sensor");
+  Serial.println("connectToInternet");
 
   Serial.print("Connecting to ");
   Serial.println(ssid);
@@ -165,6 +178,8 @@ void connectToInternet(){
     Serial.print(".");
   }
 
+  connected = true;
+  
   Serial.println("");
   Serial.println("WiFi connected");
   Serial.println("IP address: ");
@@ -183,7 +198,7 @@ bool postMessageToSlack(String msg)
   WiFiClientSecure client;
   const int httpsPort = 443;
   if (!client.connect(host, httpsPort)) {
-    Serial.println("Connection fadustSensorPowerPin :-(");
+    Serial.println("Connection :-(");
     return false;
   }
 
@@ -217,14 +232,14 @@ int readAnalogSensor(int digitalPinToPower){
   digitalWrite(digitalPinToPower,HIGH);
   delay(300); //TODO check delay on function
 
-  int anologValue = analogRead(commonAnalogInputPin);
+  int analogValue = analogRead(commonAnalogInputPin);
 
   digitalWrite(digitalPinToPower,LOW);
 
   //Degu
-  Serial.printf("analog vlaue of: %d read on pin %d", anologValue, digitalPinToPower);
+  Serial.printf("analog vlaue of: %d read on pin %d", analogValue, digitalPinToPower);
 
-  return anologValue;
+  return analogValue;
   
 }
 
@@ -262,7 +277,7 @@ void readPIRSensor(){
   movementPIRSensor = digitalRead(PIRSensorDDataPin);
 
 }
-void readTempAndHumidySensor(){
+void readTempAndHumiditySensor(){
     // Read temp and humidity
   //int chk = DHT.read11(tempHumiditySensorDataPin);
   temperature = dht.getTemperature();
@@ -272,16 +287,18 @@ void readTempAndHumidySensor(){
 
 // Print temp and humidity
 void printSensorValuesToConsole(){
+  Serial.println();
+  
   Serial.print("The current temperature is: ");
   Serial.print(temperature, 1);
   Serial.print(" 'C, humidity: ");
   Serial.println(humidity, 1);
 
   // Print Gas
-  Serial.print("The current temperature is: ");
-  Serial.print(temperature);
-  Serial.print(" 'C, humidity: ");
-  Serial.println(humidity);
+  //see https://components101.com/mq2-gas-sensor under procedure to measure ppm, you need to calibrate and calculate constants
+  Serial.print("The current gas level is: ");
+  Serial.print(gaslevel);
+  Serial.print(" ppm: ");
   
   // Print movementPIRSensor
   Serial.print("movementPIRSensor detected: ");
@@ -291,12 +308,14 @@ void printSensorValuesToConsole(){
   // print result to console - post to internet
   Serial.print("The current dust concentration is: ");
   Serial.print(density);
-  Serial.print(" ug/m3\n");
+  Serial.println(" ug/m3\n");
 }
 
 String composePostMessage(){
-
- message += F("movementPIRSensor detected: ");
+//Serial.println("composePostMessage");
+  String message = "";
+  
+  message += F("movementPIRSensor detected: ");
   message += String(movementPIRSensor, 2);
   message += F("\n");
 
@@ -311,12 +330,8 @@ String composePostMessage(){
   message += F("The humidity is: ");
   message += String(humidity, 1);
   message += F(" %\n");
-    
+
+  return message;
 }
-
-
-
-
-
 
 
