@@ -1,19 +1,18 @@
 
 /*
+     
+     
      From the example OTA code from
      Will always allow upload of code via URL route
-
-
-
 
      //Youtube video ACROBOTIC
      https://www.youtube.com/watch?v=3aB85PuOQhY
 
      Python 2.7 (python 3.5 not supported) – https://www.python.org/
-  Note: Windows users MUST select “Add python.exe to Path” while installing python 2.7 .
+     Note: Windows users MUST select “Add python.exe to Path” while installing python 2.7 .
 
 
-   Upload instructions
+Upload instructions
    ESP8266 must be connected to THE SAME network to upload codes.
    Make a request to the board to restart - this will make it receptive to new code OTA http://192.168.1.4/restart
    Select the network path as the COM port
