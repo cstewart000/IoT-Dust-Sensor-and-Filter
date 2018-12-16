@@ -1,15 +1,27 @@
 /*
 
+  A Program to Switch on an appliance manually and from the internet. 
+
+  Circuit
+  Push button 
+  SS Relay
+  5v Power supply unit - to provide power to NodeMCU
+
+  
+  
   http://www.arduino.cc/en/Tutorial/Debounce
 */
 
 #include <ESP8266WiFi.h>
 
 // IoT settings
-const char* ssid = "Hackland";
-const char* password = "hackland1";
 
-const char* host = "api.pushingbox.com";
+const char* ssid = "HUAWEI-2XCNAA";
+const char* password = "95749389";
+
+//const char* ssid = "Hackland";
+//const char* password = "hackland1";
+
 
 // SLACK
 const String slack_hook_url = "https://hooks.slack.com/services/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";
@@ -28,7 +40,7 @@ int buttonState;             // the current reading from the input pin
 int lastButtonState = LOW;   // the previous reading from the input pin
 
 unsigned long lastDebounceTime = 0;  // the last time the output pin was toggled
-unsigned long debounceDelay = 200;    // the debounce time; increase if the output flickers
+unsigned long debounceDelay = 2000;    // the debounce time; increase if the output flickers
 
 
 void connectToWiFi();
