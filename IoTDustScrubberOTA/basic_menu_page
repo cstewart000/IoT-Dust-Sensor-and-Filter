@@ -1,0 +1,16 @@
+
+<h1>[--]</h1>
+<h4>Air Filter Control</h4>
+<p>Control air filter be selecting links below.</p>
+<p><a href="192.168.0.180/on">[on]</a></p>
+<p><a href="192.168.0.180/off">[off]</a></p>
+<p><a href="192.168.0.180/[reset]">reset</a></p>
+<p><a href="192.168.0.180/[status]">status</a></p>
+<p>&nbsp;</p>
+<h4>Code</h4>
+<p><a href="https://github.com/cstewart000/IoT-Dust-Sensor-and-Filter">https://github.com/cstewart000/IoT-Dust-Sensor-and-Filter</a></p>
+<h4>Build</h4>
+<p><a href="https://hackingismakingisengineering.wordpress.com/2018/12/09/upgrading-an-air-filter-to-iot\">https://hackingismakingisengineering.wordpress.com/2018/12/09/upgrading-a<br />n-air-filter-to-iot</a></p>
+<p>&nbsp;</p>
+<p><a href="192.168.0.180/">[home]</a></p>
+<p>&nbsp;</p>

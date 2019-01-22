@@ -47,29 +47,20 @@
 #include <WiFiUdp.h>
 #include <ArduinoOTA.h>
 #include <ESP8266WebServer.h>
-#include <DNSServer.h> // AP point
-#include <WiFiManager.h>         //https://github.com/tzapu/WiFiManager
-
 
 // TODO: Update to local network
 
-const char* ssid = "Hackland++ 2G";
+const char* ssid = "Hackland";
 const char* password = "hackland1";
 
 //const char* ssid = "HUAWEI-2XCNAA";
 //const char* password = "95749389";
-
-const char* AP_NAME = "IoT Device Setup";
 
 // TODO: Update to your h\web hook
 const char* WEB_HOOK = "http://rocket.project-entropy.com:5000/users/1/web_requests/8/airqualsecret";
 
 //To enable OTA uploading, need web server
 ESP8266WebServer server;
-
-// To enable an accesspoint
-WiFiManager wifiManager;
-
 bool otaFlag = true;
 static uint16_t TIME_BETWEEN_UPDATES = 15000;
 uint16_t timeSinceLastUpdate = 0;
@@ -77,6 +68,8 @@ uint16_t timeSinceLastUpdate = 0;
 // Hardware Settings
 const int BUTTON_PIN = D3;    // the number of the pushbutton pin
 const int SCRUBBER_SSR_PIN = D1;      //
+const int SCRUBBER_SSR_PIN = D5; // Indicator LED   
+
 
 // Variables will change:
 int scrubberState = LOW;         // the current state of the output pin
@@ -86,7 +79,7 @@ int lastButtonState = LOW;   // the previous reading from the input pin
 unsigned long lastDebounceTime = 0;  // the last time the output pin was toggled
 unsigned long DEBOUNCE_DELAY = 1000;    // the debounce time; increase if the output flickers
 
-String basicHtml = "<p>&nbsp;</p> <h4>Air Filter Control</h4> <p>Control air filter be selecting links below.</p> <p><a href=\"/on\">[on]</a></p> <p><a href=\"/off\">[off]</a></p> <p><a href=\"/reset\">[reset]</a></p> <p><a href=\"/status\">[status]</a></p> <p>&nbsp;</p> <h4>Code</h4> <p><a href=\"https://github.com/cstewart000/IoT-Dust-Sensor-and-Filter\">https://github.com/cstewart000/IoT-Dust-Sensor-and-Filter</a></p> <h4>Build</h4> <p><a href=\"https://hackingismakingisengineering.wordpress.com/2018/12/09/upgrading-an-air-filter-to-iot\">https://hackingismakingisengineering.wordpress.com/2018/12/09/upgrading-a<br />n-air-filter-to-iot</a></p> <p>&nbsp;</p> <p><a href=\"/\">[home]</a></p> <p>&nbsp;</p>";
+String basicHtml = "<p>&nbsp;</p> <h4>Dust Extractor Control</h4> <p>Control air filter be selecting links below.</p> <p><a href=\"/on\">[on]</a></p> <p><a href=\"/off\">[off]</a></p> <p><a href=\"/reset\">[reset]</a></p> <p><a href=\"/status\">[status]</a></p> <p>&nbsp;</p> <h4>Code</h4> <p><a href=\"https://github.com/cstewart000/IoT-Dust-Sensor-and-Filter\">https://github.com/cstewart000/IoT-Dust-Sensor-and-Filter</a></p> <h4>Build</h4> <p><a href=\"https://hackingismakingisengineering.wordpress.com/2018/12/09/upgrading-an-air-filter-to-iot\">https://hackingismakingisengineering.wordpress.com/2018/12/09/upgrading-a<br />n-air-filter-to-iot</a></p> <p>&nbsp;</p> <p><a href=\"/\">[home]</a></p> <p>&nbsp;</p>";
 
 void setup() {
 
@@ -98,16 +91,6 @@ void setup() {
 
   Serial.begin(115200);
   Serial.println("Booting");
-
-  
-  // To enable an accesspoint
-  WiFiManager wifiManager;
-
-  //wifiManager.setConfigPortalBlocking(false);
-  // Autoconnect with Library
-  wifiManager.autoConnect(AP_NAME);
-
-  /*
   WiFi.mode(WIFI_STA);
   WiFi.begin(ssid, password);
   while (WiFi.waitForConnectResult() != WL_CONNECTED) {
@@ -115,8 +98,6 @@ void setup() {
     delay(5000);
     ESP.restart();
   }
-  */
-  
 
   Serial.println();
   Serial.print("MAC: ");
@@ -207,8 +188,6 @@ void setup() {
 }
 
 void loop() {
-  //wifiManager.process();
-  
   if (otaFlag) {
     while (timeSinceLastUpdate < TIME_BETWEEN_UPDATES) {
       ArduinoOTA.handle();
